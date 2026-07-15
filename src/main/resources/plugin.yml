@@ -1,0 +1,23 @@
+name: PvpAgree
+version: '1.0.0'
+main: jp.wsn0672.pvpagree.PvpAgreePlugin
+api-version: '1.21.11'
+author: wsn0672
+description: Mutual-consent PvP for Paper servers
+
+commands:
+  pvp:
+    description: PvP申請の送信、応答、設定を行います
+    usage: /pvp [mcid]
+    permission: pvpagree.use
+
+permissions:
+  pvpagree.use:
+    description: PvP申請機能を使用できます
+    default: true
+  pvpagree.reload:
+    description: PvpAgreeの設定を再読み込みできます
+    default: op
+  pvpagree.bypasslimits:
+    description: PvP申請のクールダウンと件数制限を無視できます
+    default: op

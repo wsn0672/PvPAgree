@@ -1,0 +1,268 @@
+# 申請と戦闘
+request-timeout-seconds: 30
+# PvP常時許可の申請が有効な秒数
+allowlist-request-timeout-seconds: 30
+# 承諾後、この秒数以内に最初の攻撃が成立しなければ承諾を取り消す
+agreement-timeout-seconds: 20
+combat-timeout-seconds: 20
+
+# data.ymlへの変更をまとめて非同期保存するまでの時間（tick）
+data-save-delay-ticks: 40
+
+request-limits:
+  cooldown-seconds: 5
+  max-pending-sent: 3
+  max-per-minute: 10
+  bypass-permission: "pvpagree.bypasslimits"
+
+# 相手の体を見ながらしゃがんで腕を振ると、離れていても申請できる。
+# 申請された側が申請者を見て同じ操作を返すと承諾になる。
+sneak-gesture:
+  enabled: true
+  require-empty-main-hand: true
+  required-swings: 5
+  window-seconds: 4
+  max-distance: 128.0
+  # 視線判定の太さ。大きすぎると別のプレイヤーを選びやすくなる。
+  ray-size: 0.35
+  request-progress: "&eあと{remaining}回連打すると{player}さんにPvP申請を送ります.."
+  accept-progress: "&aあと{remaining}回連打すると{player}さんのPvP申請を承諾します.."
+  request-sent-action-bar: "&a&l申請を送りました！"
+
+# 申請を受信している間、短時間に首を縦へ交互に振ると承諾、横へ振ると拒否する。
+# 標準では誤検知防止のため、しゃがんでいる間だけ検出する。
+head-gesture:
+  enabled: true
+  require-sneaking: true
+  required-reversals: 4
+  window-seconds: 4
+  minimum-step-degrees: 1.5
+  minimum-amplitude-degrees: 12.0
+  # もう一方の軸より何倍大きい動きを縦・横として採用するか
+  axis-dominance: 1.35
+  accept-progress: "&aあと{remaining}回うなずくと{player}さんの申請を承諾します.."
+  deny-progress: "&cあと{remaining}回首を横に振ると{player}さんの申請を拒否します.."
+
+fight-end:
+  end-on-death: true
+  end-on-world-change: true
+  end-on-teleport: false
+
+# 戦闘開始後のログアウト。戦闘状態自体は残り時間が切れるまで保持される。
+combat-logout:
+  enabled: true
+  send-webhook: true
+  webhook-message: "⚠️ {player}さんが{opponent}さんとの戦闘中にログアウトしました！"
+  # {player} と {opponent} が使用可能。空なら通知のみ。
+  commands: []
+  # 例: commands: ["say {player} が戦闘中にログアウトしました"]
+
+# NONE / ACTION_BAR / BOSS_BAR
+combat-display:
+  mode: "ACTION_BAR"
+  action-bar: "&c⚔ &f{player} &7| 残り &e{seconds}秒"
+  boss-bar: "&cPvP終了まで {seconds}秒"
+  boss-bar-color: "RED"
+  boss-bar-overlay: "PROGRESS"
+
+sounds:
+  request:
+    enabled: true
+    sound: "minecraft:entity.arrow.hit_player"
+    volume: 1.0
+    pitch: 1.0
+  accepted:
+    enabled: true
+    sound: "minecraft:block.note_block.pling"
+    volume: 1.0
+    pitch: 1.0
+
+discord-webhook:
+  enabled: false
+  url: ""
+  username: "PvpAgree"
+  # 実際の初撃が成立したときに送信される
+  message: "⚔️ {player1}さんと{player2}さんがPvPを開始しました！"
+
+minecraft-broadcast:
+  enabled: true
+  message: "&8[&cPvP&8] &e{player1}さんと{player2}さんがPvPを開始しました！"
+
+messages:
+  prefix: "&8[&cPvP&8] &r"
+  players-only: "&cこのコマンドはプレイヤーのみ使用できます。"
+  no-permission: "&c権限がありません。"
+  usage: "&e使い方: /pvp [MCID]、/pvp allow <MCID>、/pvp cancel <MCID>"
+  player-not-found: "&c{player}さんはオンラインではありません。"
+  cannot-request-self: "&c自分自身には申請できません。"
+  already-active: "&e{player}さんとはすでにPvPが承諾済みです。"
+  already-requested: "&e{player}さんにはすでに申請を送っています。"
+  request-sent: "&a{player}さんにPvP申請を送りました。"
+  request-cooldown: "&e次の申請まで{seconds}秒待ってください。"
+  too-many-pending: "&c同時に送信できる申請は{limit}件までです。"
+  too-many-requests: "&c1分間に送信できる申請は{limit}件までです。"
+  request-header: "&7============="
+  request-received: "&e{player}さんからPvP申請が届いています！"
+  request-actions-prefix: "     "
+  accept-button: "&a&l[承諾]"
+  accept-hover: "&a{player}さんからの申請を承諾"
+  actions-space: "　　"
+  deny-button: "&c&l[拒否]"
+  deny-hover: "&c{player}さんからの申請を拒否"
+  request-open-gui: "&7または &f/pvp &7でGUIを開く"
+  request-footer: "&7============="
+  no-request: "&eその申請は存在しないか、期限切れです。"
+  agreement-ready: "&a{player}さんとのPvPを承諾しました。{ready-seconds}秒以内に攻撃すると、戦闘時間{seconds}秒が始まります。"
+  agreement-expired: "&e{player}さんとのPvPは、承諾後に戦闘が始まらなかったため取り消されました。"
+  request-denied: "&e{player}さんからの申請を拒否しました。"
+  your-request-denied: "&c{player}さんがPvP申請を拒否しました。"
+  permanently-denied: "&e{player}さんを永久拒否リストに追加しました。"
+  player-unblocked: "&a{player}さんの永久拒否を解除しました。"
+  cannot-allow-self: "&c自分自身は常時許可リストに追加できません。"
+  allow-request-sent: "&a{player}さんにPvP常時許可リストの申請を送りました。"
+  allow-request-already-sent: "&e{player}さんにはすでにPvP常時許可リストの申請を送っています。"
+  allow-request-header: "&7============="
+  allow-request-received: "&e{player}さんからPvP常時許可リストの申請が届いています！"
+  allow-accept-button: "&a&l[相互許可する]"
+  allow-accept-hover: "&a{player}さんと常時PvPを許可する"
+  allow-deny-button: "&c&l[拒否]"
+  allow-deny-hover: "&c{player}さんからの常時許可申請を拒否"
+  allow-request-footer: "&7============="
+  no-allow-request: "&eその常時許可申請は存在しないか、期限切れです。"
+  allow-request-denied: "&e{player}さんからの常時許可申請を拒否しました。"
+  your-allow-request-denied: "&c{player}さんが常時許可申請を拒否しました。"
+  allow-request-expired-sender: "&e{player}さんへの常時許可申請が時間切れになりました。"
+  allow-request-expired-target: "&e{player}さんからの常時許可申請が時間切れになりました。"
+  allow-request-cancelled-disconnect: "&e{player}さんが退出したため、PvP常時許可申請はキャンセルされました。"
+  always-allowed-established: "&a{player}さんとPvPを常に許可しました。通常のPvP申請なしで戦えます。"
+  always-allowed-removed: "&e{player}さんをPvP常時許可リストから削除しました。"
+  always-allowed-removed-by-player: "&e{player}さんが相互PvP常時許可を解除しました。"
+  already-always-allowed: "&e{player}さんはすでにPvP常時許可リストに入っています。"
+  not-always-allowed: "&e{player}さんはPvP常時許可リストに入っていません。"
+  allow-target-offline: "&c{player}さんがオフラインのため、常時許可申請を送れません。"
+  blocked-by-player: "&c{player}さんにはPvP申請を送信できません。"
+  auto-denied: "&c{player}さんはPvP申請を受け付けていません。"
+  request-expired-sender: "&e{player}さんへのPvP申請が時間切れになりました。"
+  request-expired-target: "&e{player}さんからのPvP申請が時間切れになりました。"
+  request-cancelled: "&a{player}さんへの申請を取り消しました。"
+  request-cancelled-by-sender: "&e{player}さんがPvP申請を取り消しました。"
+  request-cancelled-disconnect: "&e{player}さんが退出したため、PvP申請はキャンセルされました。"
+  all-requests-cancelled: "&a送信中の申請を{count}件取り消しました。"
+  no-sent-request: "&e{player}さんへの送信中の申請はありません。"
+  no-sent-requests: "&e送信中の申請はありません。"
+  pvp-started: "&a{player}さんとのPvPが開始されました！"
+  pvp-ended: "&e{player}さんとのPvP可能状態が終了しました。"
+  pvp-not-allowed: "&c{player}さんとはPvPの同意が取れていません。"
+  combat-logout: "&c{player}さんが戦闘中にログアウトしました。"
+  setting-changed: "&aPvP申請設定を「{setting}」に変更しました。"
+  gesture-changed: "&aしゃがみ連打機能を{state}にしました。"
+  config-reloaded: "&a設定を再読み込みしました。"
+
+gui:
+  response-title: "&8{player}さんからのPvP申請"
+  settings-title: "&8PvP申請設定"
+  blocklist-title: "&8永久拒否リスト ({page}/{pages})"
+  allowlist-title: "&8PvP常時許可リスト ({page}/{pages})"
+  allow-response-title: "&8{player}さんからの常時PvP許可申請"
+  selected: "&a現在の設定"
+  not-selected: "&8クリックして選択"
+  enabled: "&a有効"
+  disabled: "&c無効"
+  allowed: "&a常時許可中"
+  allow-pending: "&e申請中"
+  not-allowed: "&7未登録"
+  add-allow: "&aクリックして相互許可を申請"
+  remove-allow: "&cクリックすると双方の許可を解除"
+  allow-pending-action: "&7相手の承諾待ち"
+
+  response:
+    size: 27
+    accept: { slot: 11, material: "LIME_WOOL" }
+    deny: { slot: 13, material: "RED_WOOL" }
+    block: { slot: 15, material: "BARRIER" }
+  allow-response:
+    size: 27
+    accept: { slot: 11, material: "LIME_WOOL" }
+    deny: { slot: 15, material: "RED_WOOL" }
+  settings:
+    size: 27
+    auto-accept: { slot: 10, material: "LIME_DYE" }
+    show: { slot: 12, material: "PAPER" }
+    always-deny: { slot: 14, material: "RED_DYE" }
+    gesture: { slot: 20, material: "LEVER" }
+    allowlist: { slot: 22, material: "TOTEM_OF_UNDYING" }
+    blocklist: { slot: 24, material: "PLAYER_HEAD" }
+
+  accept-name: "&a&l承諾"
+  accept-lore:
+    - "&7{player}さんとのPvPを承諾します"
+  deny-name: "&c&l拒否"
+  deny-lore:
+    - "&7今回の申請を拒否します"
+  block-name: "&4&lこの人を永久に拒否する"
+  block-lore:
+    - "&7{player}さんからの今後の申請を拒否します"
+  auto-accept-name: "&a&l申請を自動的に受け入れる"
+  auto-accept-lore:
+    - "&7受信した申請を即座に承諾します"
+    - "{selected}"
+  show-name: "&e&l申請を表示する"
+  show-lore:
+    - "&7通常どおり申請を表示します"
+    - "{selected}"
+  always-deny-name: "&c&l申請を常に拒否"
+  always-deny-lore:
+    - "&7すべての申請を自動で拒否します"
+    - "{selected}"
+  gesture-name: "&b&l視線操作・首振りで申請に応答"
+  gesture-lore:
+    - "&7現在: {state}"
+    - "&7相手を見てしゃがみながら{required}回腕を振ります"
+    - "&7申請中は縦振りで承諾、横振りで拒否できます"
+  blocklist-name: "&4&l永久拒否リスト"
+  blocklist-lore:
+    - "&7登録人数: {count}人"
+    - "&7クリックして解除画面を開く"
+  allowlist-name: "&a&lPvPを常に許可する人リスト"
+  allowlist-lore:
+    - "&7登録人数: {count}人"
+    - "&7双方が承諾した相手と常時PvPできます"
+    - "&7クリックして編集"
+  allow-response-accept-name: "&a&l相互に常時許可する"
+  allow-response-accept-lore:
+    - "&7{player}さんと申請なしでPvP可能になります"
+  allow-response-deny-name: "&c&l拒否"
+  allow-response-deny-lore:
+    - "&7今回の常時許可申請を拒否します"
+
+  blocklist-entry:
+    material: "PLAYER_HEAD"
+    name: "&e{player}"
+    lore:
+      - "&7クリックして永久拒否を解除"
+  blocklist-navigation:
+    previous: { slot: 45, material: "ARROW" }
+    back: { slot: 49, material: "BARRIER" }
+    next: { slot: 53, material: "ARROW" }
+    empty: { slot: 22, material: "PAPER" }
+  empty-blocklist-name: "&7永久拒否したプレイヤーはいません"
+  empty-blocklist-lore: []
+  allowlist-entry:
+    material: "PLAYER_HEAD"
+    name: "&e{player}"
+    lore:
+      - "&7状態: {state}"
+      - "{action}"
+  allowlist-navigation:
+    previous: { slot: 45, material: "ARROW" }
+    back: { slot: 49, material: "BARRIER" }
+    next: { slot: 53, material: "ARROW" }
+    empty: { slot: 22, material: "PAPER" }
+  empty-allowlist-name: "&7追加可能なプレイヤーがいません"
+  empty-allowlist-lore: []
+  previous-name: "&e前のページ"
+  previous-lore: []
+  next-name: "&e次のページ"
+  next-lore: []
+  back-name: "&c設定に戻る"
+  back-lore: []
